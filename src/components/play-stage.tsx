@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useGameSocket } from "@/components/use-game-socket";
-import { Countdown, LeaderboardList, formatPoints } from "@/components/game-shared";
+import { Countdown, LeaderboardList, formatPoints, answerLetter } from "@/components/game-shared";
 import { fieldInput, primaryButton, ghostButton } from "@/components/ui";
 
 export function PlayStage({
@@ -57,7 +57,7 @@ export function PlayStage({
           </p>
         </Centered>
       ) : state.phase === "question" ? (
-        <section className="flex flex-1 flex-col gap-5">
+        <section key={state.question.index} className="mq-animate-in flex flex-1 flex-col gap-5">
           <div className="text-sm text-white/50">
             Question {state.question.index + 1} of {state.question.total}
           </div>
@@ -72,7 +72,7 @@ export function PlayStage({
           ) : state.question.options.length > 0 ? (
             <>
               <div className="grid grid-cols-1 gap-3">
-                {state.question.options.map((o) => {
+                {state.question.options.map((o, i) => {
                   const isSel = selected.includes(o.id);
                   return (
                     <button
@@ -86,13 +86,21 @@ export function PlayStage({
                         }
                       }}
                       className={
-                        "rounded-xl border px-4 py-4 text-left font-medium transition-colors " +
+                        "flex items-center gap-3 rounded-xl border px-4 py-4 text-left font-medium transition-colors " +
                         (isSel
                           ? "border-gold bg-gold/15 text-gold"
                           : "border-panel-border bg-panel-2/40 hover:border-gold/50")
                       }
                     >
-                      {o.text}
+                      <span
+                        className={
+                          "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-sm font-bold " +
+                          (isSel ? "border-gold text-gold" : "border-gold/50 text-gold")
+                        }
+                      >
+                        {answerLetter(i)}
+                      </span>
+                      <span>{o.text}</span>
                     </button>
                   );
                 })}

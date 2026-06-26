@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useGameSocket } from "@/components/use-game-socket";
-import { Countdown, LeaderboardList, formatPoints } from "@/components/game-shared";
+import { Countdown, LeaderboardList, formatPoints, answerLetter } from "@/components/game-shared";
 import { primaryButton, ghostButton } from "@/components/ui";
 
 const TYPE_HINT: Record<string, string> = {
@@ -124,7 +124,7 @@ export function HostStage({
           </div>
         </section>
       ) : state.phase === "question" ? (
-        <section className="space-y-5">
+        <section key={state.question.index} className="mq-animate-in space-y-5">
           <div className="flex items-center justify-between text-sm text-white/50">
             <span>
               Question {state.question.index + 1} of {state.question.total} ·{" "}
@@ -139,12 +139,15 @@ export function HostStage({
           <h2 className="text-2xl font-bold">{state.question.title}</h2>
           {state.question.options.length > 0 ? (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {state.question.options.map((o) => (
+              {state.question.options.map((o, i) => (
                 <div
                   key={o.id}
-                  className="rounded-xl border border-panel-border bg-panel-2/30 px-4 py-3 font-medium"
+                  className="flex items-center gap-3 rounded-xl border border-panel-border bg-panel-2/30 px-4 py-3 font-medium"
                 >
-                  {o.text}
+                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/50 text-sm font-bold text-gold">
+                    {answerLetter(i)}
+                  </span>
+                  <span>{o.text}</span>
                 </div>
               ))}
             </div>
@@ -153,7 +156,7 @@ export function HostStage({
           )}
         </section>
       ) : state.phase === "reveal" ? (
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <section key={state.reveal.index} className="mq-animate-in grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div>
             <p className="text-sm text-white/50">
               Question {state.reveal.index + 1} of {state.reveal.total}
@@ -212,7 +215,7 @@ export function HostStage({
           </div>
         </section>
       ) : (
-        <section className="space-y-6">
+        <section className="mq-animate-in space-y-6">
           <div className="rounded-2xl border border-gold/40 bg-gold/5 p-8 text-center">
             <p className="text-sm uppercase tracking-widest text-white/50">Final results</p>
             {state.leaderboard[0] ? (

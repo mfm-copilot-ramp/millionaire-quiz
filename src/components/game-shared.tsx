@@ -4,6 +4,11 @@ export function formatPoints(n: number): string {
   return Math.round(n).toLocaleString();
 }
 
+/** A, B, C, D … for option tiles (classic millionaire styling). */
+export function answerLetter(index: number): string {
+  return String.fromCharCode(65 + index);
+}
+
 export function Countdown({
   remainingMs,
   totalSeconds,
@@ -21,7 +26,7 @@ export function Countdown({
     <div className="w-full">
       <div className="mb-1 flex items-center justify-between text-sm">
         <span className="text-white/50">Time left</span>
-        <span className={urgent ? "font-bold text-red-300" : "font-semibold text-gold"}>{seconds}s</span>
+        <span className={urgent ? "mq-pulse font-bold text-red-300" : "font-semibold text-gold"}>{seconds}s</span>
       </div>
       <div className="h-2.5 w-full overflow-hidden rounded-full bg-panel-2/60">
         <div
