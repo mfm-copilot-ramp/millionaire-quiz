@@ -1,14 +1,25 @@
+import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { primaryButton } from "@/components/ui";
 
 export const metadata = { title: "Dashboard — Millionaire Quiz" };
 
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-xl border border-panel-border bg-panel/60 p-5">
+function StatCard({ label, value, href }: { label: string; value: number; href?: string }) {
+  const inner = (
+    <>
       <div className="text-3xl font-bold text-gold">{value}</div>
       <div className="mt-1 text-sm text-white/60">{label}</div>
-    </div>
+    </>
+  );
+  const className =
+    "block rounded-xl border border-panel-border bg-panel/60 p-5 transition-colors";
+  return href ? (
+    <Link href={href} className={`${className} hover:border-gold/50`}>
+      {inner}
+    </Link>
+  ) : (
+    <div className={className}>{inner}</div>
   );
 }
 
@@ -31,9 +42,15 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Question sets" value={questionSetCount} />
+        <StatCard label="Question sets" value={questionSetCount} href="/sets" />
         <StatCard label="Games" value={gameCount} />
         <StatCard label="Sessions hosted" value={sessionCount} />
+      </div>
+
+      <div>
+        <Link href="/sets/new" className={`${primaryButton} w-auto px-6`}>
+          + Create a question set
+        </Link>
       </div>
 
       <section className="rounded-xl border border-panel-border bg-panel/40 p-6">
