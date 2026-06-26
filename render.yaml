@@ -1,0 +1,41 @@
+# Render Blueprint — deploy the Millionaire Quiz on Render's free tier.
+#
+# One-time setup:
+#   1. Create a free PostgreSQL database (Neon — https://neon.tech — recommended,
+#      or Render's own free Postgres) and copy its connection string.
+#   2. In Render: New > Blueprint, and point it at this repository.
+#   3. When prompted, paste the Postgres connection string as DATABASE_URL.
+#      JWT_SECRET is generated for you. Deploy.
+#
+# Notes:
+#   - This is a persistent Node process with WebSockets (Socket.IO), so it runs as
+#     a "web" service, NOT a static site or serverless function.
+#   - The free instance spins down after ~15 min idle and wakes in ~50s. Open the
+#     host page first to wake it, then share the join code.
+#   - NODE_ENV is intentionally NOT set here: the build needs dev dependencies
+#     (Next compiler, Tailwind, tsx, Prisma CLI). The `start` script sets
+#     NODE_ENV=production itself via cross-env.
+
+services:
+  - type: web
+    name: millionaire-quiz
+    runtime: node
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    buildCommand: >-
+      npm install &&
+      npm run use:postgres &&
+      npx prisma generate &&
+      npx prisma db push --accept-data-loss &&
+      npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "20.18.0"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SOCKET_CORS_ORIGIN
+        value: "*"
+      - key: DATABASE_URL
+        sync: false
