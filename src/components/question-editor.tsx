@@ -10,6 +10,7 @@ import {
   allowsMultipleCorrect,
   defaultOptionsFor,
   isOptionBased,
+  validateQuestion,
   MAX_OPTIONS,
   MIN_OPTIONS,
   type OptionInput,
@@ -37,6 +38,7 @@ export function QuestionEditor({
   const [pending, startTransition] = useTransition();
 
   function patch(changes: Partial<QuestionInput>) {
+    setError(null);
     setQ((prev) => ({ ...prev, ...changes }));
   }
 
@@ -52,12 +54,14 @@ export function QuestionEditor({
 
   // --- option helpers ---
   function updateOption(index: number, changes: Partial<OptionInput>) {
+    setError(null);
     setQ((prev) => {
       const options = prev.options.map((o, i) => (i === index ? { ...o, ...changes } : o));
       return { ...prev, options };
     });
   }
   function setSingleCorrect(index: number) {
+    setError(null);
     setQ((prev) => ({
       ...prev,
       options: prev.options.map((o, i) => ({ ...o, isCorrect: i === index })),
@@ -74,6 +78,7 @@ export function QuestionEditor({
 
   // --- accepted answers helpers ---
   function updateAccepted(index: number, value: string) {
+    setError(null);
     setQ((prev) => ({
       ...prev,
       acceptedAnswers: prev.acceptedAnswers.map((a, i) => (i === index ? value : a)),
@@ -88,6 +93,11 @@ export function QuestionEditor({
 
   function submit() {
     setError(null);
+    const localError = validateQuestion(q);
+    if (localError) {
+      setError(localError);
+      return;
+    }
     startTransition(async () => {
       const result = await saveQuestion(q);
       if (result.ok) {
