@@ -43,7 +43,7 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Question sets" value={questionSetCount} href="/sets" />
-        <StatCard label="Games" value={gameCount} />
+        <StatCard label="Games" value={gameCount} href="/games" />
         <StatCard label="Sessions hosted" value={sessionCount} />
       </div>
 

@@ -19,6 +19,9 @@ export default async function HostLayout({ children }: { children: React.ReactNo
               <Link href="/sets" className="hover:text-foreground">
                 Question sets
               </Link>
+              <Link href="/games" className="hover:text-foreground">
+                Games
+              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">

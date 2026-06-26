@@ -95,7 +95,14 @@ export default async function SetDetailPage({
         </Link>
         <div className="mt-2 flex items-start justify-between gap-4">
           <h1 className="text-2xl font-bold">{set.title}</h1>
-          <DeleteSetButton setId={set.id} />
+          <div className="flex items-center gap-2">
+            {questions.length > 0 ? (
+              <Link href={`/games/new?set=${set.id}`} className={`${primaryButton} w-auto px-4`}>
+                Create game
+              </Link>
+            ) : null}
+            <DeleteSetButton setId={set.id} />
+          </div>
         </div>
       </div>
 
