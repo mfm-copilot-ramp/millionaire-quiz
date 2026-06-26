@@ -57,6 +57,9 @@ export default async function GameDetailPage({
             </Link>
           </div>
           <div className="flex items-center gap-2">
+            <Link href={`/games/${game.id}/leaderboard`} className={ghostButton}>
+              Leaderboard
+            </Link>
             <Link href={`/games/${game.id}/edit`} className={ghostButton}>
               Edit
             </Link>

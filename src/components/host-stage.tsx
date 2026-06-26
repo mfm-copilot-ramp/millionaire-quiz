@@ -224,9 +224,14 @@ export function HostStage({
             )}
           </div>
           <LeaderboardList entries={state.leaderboard} />
-          <Link href={`/games/${gameId}`} className={`${ghostButton} w-full`}>
-            Back to game
-          </Link>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Link href={`/games/${gameId}/leaderboard`} className={`${primaryButton} w-full`}>
+              View cumulative leaderboard
+            </Link>
+            <Link href={`/games/${gameId}`} className={`${ghostButton} w-full`}>
+              Back to game
+            </Link>
+          </div>
         </section>
       )}
     </div>
