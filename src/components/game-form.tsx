@@ -3,14 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import type { ScoringMode, ValueSource } from "@/lib/quiz-types";
-import {
-  SCORING_MODE_LABELS,
-  SCORING_MODE_HINTS,
-  VALUE_SOURCE_LABELS,
-  valueSourceHint,
-  presetLadder,
-  type GameInput,
-} from "@/lib/game-config";
+import { presetLadder, type GameInput } from "@/lib/game-config";
 import { saveGame } from "@/lib/game-actions";
 import { fieldInput, fieldLabel, primaryButton, ghostButton, formError } from "@/components/ui";
 
@@ -21,8 +14,45 @@ export interface SetSummary {
   questions: { order: number; title: string }[];
 }
 
-const MODES: ScoringMode[] = ["WEIGHTED", "ESCALATING"];
-const SOURCES: ValueSource[] = ["PRESET", "CUSTOM"];
+interface ScoringStyle {
+  id: string;
+  mode: ScoringMode;
+  source: ValueSource;
+  label: string;
+  hint: string;
+}
+
+// The (mode x valueSource) matrix expressed as four host-friendly choices.
+const SCORING_STYLES: ScoringStyle[] = [
+  {
+    id: "fixed",
+    mode: "WEIGHTED",
+    source: "PRESET",
+    label: "Fixed points",
+    hint: "Every correct answer earns the question's base points. Simple and predictable.",
+  },
+  {
+    id: "configurable",
+    mode: "WEIGHTED",
+    source: "CUSTOM",
+    label: "Configurable per-answer points",
+    hint: "Use the points you set on each answer option — supports partial credit.",
+  },
+  {
+    id: "escalating",
+    mode: "ESCALATING",
+    source: "PRESET",
+    label: "Escalating ladder",
+    hint: "Millionaire-style: each question is worth more (1,000 → 2,000 → 4,000 …).",
+  },
+  {
+    id: "custom-ladder",
+    mode: "ESCALATING",
+    source: "CUSTOM",
+    label: "Custom value ladder",
+    hint: "Set the exact value of every question yourself.",
+  },
+];
 
 export function GameForm({
   sets,
@@ -60,6 +90,11 @@ export function GameForm({
     if (selectedSet && game.customLadder.length !== selectedSet.questionCount) {
       patch({ customLadder: presetLadder(selectedSet.questionCount) });
     }
+  }
+
+  function selectStyle(style: ScoringStyle) {
+    patch({ scoringMode: style.mode, valueSource: style.source });
+    if (style.mode === "ESCALATING" && style.source === "CUSTOM") enterCustomEscalating();
   }
 
   function updateLadder(index: number, value: number) {
@@ -130,56 +165,33 @@ export function GameForm({
         </select>
       </div>
 
-      {/* Scoring mode */}
+      {/* Scoring style */}
       <div>
-        <span className={fieldLabel}>Scoring mode</span>
+        <span className={fieldLabel}>Scoring style</span>
+        <p className="mt-1 text-xs text-white/50">How points are awarded in this game.</p>
         <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {MODES.map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => patch({ scoringMode: mode })}
-              className={`rounded-xl border p-4 text-left transition-colors ${
-                game.scoringMode === mode
-                  ? "border-gold bg-gold/10"
-                  : "border-panel-border bg-panel-2/40 hover:border-gold/40"
-              }`}
-            >
-              <div className="font-semibold text-foreground">{SCORING_MODE_LABELS[mode]}</div>
-              <div className="mt-1 text-xs text-white/60">{SCORING_MODE_HINTS[mode]}</div>
-            </button>
-          ))}
+          {SCORING_STYLES.map((style) => {
+            const active = game.scoringMode === style.mode && game.valueSource === style.source;
+            return (
+              <button
+                key={style.id}
+                type="button"
+                onClick={() => selectStyle(style)}
+                className={`rounded-xl border p-4 text-left transition-colors ${
+                  active
+                    ? "border-gold bg-gold/10"
+                    : "border-panel-border bg-panel-2/40 hover:border-gold/40"
+                }`}
+              >
+                <div className="font-semibold text-foreground">{style.label}</div>
+                <div className="mt-1 text-xs text-white/60">{style.hint}</div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Value source */}
-      <div>
-        <span className={fieldLabel}>Values</span>
-        <div className="mt-2 flex flex-wrap gap-3">
-          {SOURCES.map((source) => (
-            <button
-              key={source}
-              type="button"
-              onClick={() => {
-                patch({ valueSource: source });
-                if (source === "CUSTOM" && game.scoringMode === "ESCALATING") enterCustomEscalating();
-              }}
-              className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                game.valueSource === source
-                  ? "border-gold bg-gold/10 text-gold"
-                  : "border-panel-border bg-panel-2/40 text-white/70 hover:border-gold/40"
-              }`}
-            >
-              {VALUE_SOURCE_LABELS[source]}
-            </button>
-          ))}
-        </div>
-        <p className="mt-2 text-xs text-white/50">
-          {valueSourceHint(game.scoringMode, game.valueSource)}
-        </p>
-      </div>
-
-      {/* Speed bonus */}
+      {/* Speed bonus (modifier — works with any style) */}
       <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-panel-border bg-panel-2/40 p-3">
         <input
           type="checkbox"
@@ -190,7 +202,7 @@ export function GameForm({
         <span>
           <span className="font-medium text-foreground">Speed bonus</span>
           <span className="block text-xs text-white/60">
-            Faster correct answers earn more (full value instantly, half at the buzzer).
+            Layer onto any style — faster correct answers earn more (full value instantly, half at the buzzer).
           </span>
         </span>
       </label>
@@ -223,7 +235,7 @@ export function GameForm({
                   min={0}
                   value={ladder[index] ?? 0}
                   onChange={(e) => updateLadder(index, Number(e.target.value) || 0)}
-                  className={`${fieldInput} mt-0 w-32`}
+                  className={`${fieldInput} mt-0 shrink-0 !w-32`}
                 />
               </div>
             ))}

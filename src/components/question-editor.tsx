@@ -225,20 +225,25 @@ export function QuestionEditor({
                 value={opt.text}
                 readOnly={lockedText}
                 onChange={(e) => updateOption(index, { text: e.target.value })}
-                className={`${fieldInput} mt-0 flex-1 ${lockedText ? "opacity-70" : ""}`}
+                className={`${fieldInput} mt-0 min-w-0 flex-1 ${lockedText ? "opacity-70" : ""}`}
                 placeholder={`Option ${index + 1}`}
               />
 
               {showPoints ? (
-                <input
-                  type="number"
-                  min={0}
-                  value={opt.points}
-                  onChange={(e) => updateOption(index, { points: Number(e.target.value) || 0 })}
-                  className={`${fieldInput} mt-0 w-24`}
-                  title="Per-option points (Weighted + Custom scoring)"
-                  aria-label={`Points for option ${index + 1}`}
-                />
+                <label
+                  className="flex shrink-0 items-center gap-1 text-xs text-white/40"
+                  title="Per-option points (used only with Weighted + Custom game scoring)"
+                >
+                  <input
+                    type="number"
+                    min={0}
+                    value={opt.points}
+                    onChange={(e) => updateOption(index, { points: Number(e.target.value) || 0 })}
+                    className="w-16 rounded-lg border border-panel-border bg-panel-2/60 px-2 py-2 text-right text-foreground outline-none focus:border-gold/70 focus:ring-2 focus:ring-gold/30"
+                    aria-label={`Points for option ${index + 1}`}
+                  />
+                  pts
+                </label>
               ) : null}
 
               {q.type !== "TRUE_FALSE" && q.options.length > MIN_OPTIONS ? (
