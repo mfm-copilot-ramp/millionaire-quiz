@@ -9,8 +9,9 @@ import {
   parseGameConfig,
   presetLadder,
 } from "@/lib/game-config";
-import { primaryButton, ghostButton } from "@/components/ui";
+import { ghostButton } from "@/components/ui";
 import { DeleteGameButton } from "@/components/delete-game-button";
+import { StartSessionButton } from "@/components/start-session-button";
 
 export const metadata = { title: "Game — Millionaire Quiz" };
 
@@ -95,20 +96,25 @@ export default async function GameDetailPage({
       <section className="rounded-xl border border-panel-border bg-panel/40 p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Live sessions</h2>
-          <button type="button" disabled className={`${primaryButton} w-auto cursor-not-allowed px-5 opacity-60`}>
-            Start a session
-          </button>
+          <StartSessionButton gameId={game.id} />
         </div>
         {game.sessions.length === 0 ? (
           <p className="mt-4 text-sm text-white/50">
-            No sessions yet. Hosting live sessions (with join codes players can use) is wired up in the next step.
+            No sessions yet. Start one to get a join code players can use from their phones.
           </p>
         ) : (
           <ul className="mt-4 space-y-2">
             {game.sessions.map((s) => (
-              <li key={s.id} className="rounded-lg border border-panel-border bg-panel-2/30 px-4 py-2 text-sm">
-                <span className="font-mono font-semibold text-gold">{s.joinCode}</span>
-                <span className="ml-3 text-white/60">{s.status}</span>
+              <li key={s.id}>
+                <Link
+                  href={`/games/${game.id}/sessions/${s.id}`}
+                  className="flex items-center justify-between rounded-lg border border-panel-border bg-panel-2/30 px-4 py-2 text-sm transition-colors hover:border-gold/50"
+                >
+                  <span className="font-mono font-semibold tracking-widest text-gold">
+                    {s.joinCode}
+                  </span>
+                  <span className="text-white/60">{s.status}</span>
+                </Link>
               </li>
             ))}
           </ul>
