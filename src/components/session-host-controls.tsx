@@ -7,15 +7,17 @@ import { ghostButton } from "@/components/ui";
 export function SessionHostControls({
   sessionId,
   ended,
+  showEnd = true,
 }: {
   sessionId: string;
   ended: boolean;
+  showEnd?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
 
   return (
     <div className="flex items-center gap-2">
-      {!ended ? (
+      {showEnd && !ended ? (
         <button
           type="button"
           disabled={pending}
