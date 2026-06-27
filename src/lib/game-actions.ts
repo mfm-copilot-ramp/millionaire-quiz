@@ -82,7 +82,12 @@ export async function saveGame(input: GameInput): Promise<SaveGameResult> {
     gameId = created.id;
   }
 
-  return { ok: true, id: gameId };
+  // Navigate server-side (consistent with createSession / deleteGame). This is more
+  // robust than a client router.push after the await: on a stale tab spanning a
+  // redeploy, Next falls back to a hard navigation instead of leaving the submit
+  // button stuck on "Saving…". redirect() throws internally, so keep it last.
+  revalidatePath("/games");
+  redirect(`/games/${gameId}`);
 }
 
 export async function deleteGame(gameId: string): Promise<void> {

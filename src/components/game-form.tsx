@@ -108,13 +108,10 @@ export function GameForm({
   function submit() {
     setError(null);
     startTransition(async () => {
+      // saveGame redirects to the new game on success, so it only returns a value
+      // when validation fails. (Mirrors createSession / StartSessionButton.)
       const result = await saveGame(game);
-      if (result.ok) {
-        router.push(`/games/${result.id}`);
-        router.refresh();
-      } else {
-        setError(result.error);
-      }
+      if (result && !result.ok) setError(result.error);
     });
   }
 
