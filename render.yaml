@@ -35,6 +35,14 @@ services:
         value: "20.18.0"
       - key: JWT_SECRET
         generateValue: true
+      # Pins the encryption key Next.js uses to salt Server Action IDs. Without a
+      # stable key, every deploy regenerates the key and changes all action IDs,
+      # so any already-open browser tab POSTs a stale ID and gets a 404
+      # ("Server action not found") — e.g. the New Game button hanging on
+      # "Saving…". generateValue emits a base64 256-bit key (Next's required
+      # format) and persists it across deploys, keeping action IDs stable.
+      - key: NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
+        generateValue: true
       - key: SOCKET_CORS_ORIGIN
         value: "*"
       - key: DATABASE_URL
